@@ -27,11 +27,7 @@ const Dialog = (props: DialogProps) => {
   const sdk = useSDK<DialogExtensionSDK>();
   const { setFieldValue } = props;
 
-  const {
-    data: auth,
-    loading: authLoading,
-    error: authError,
-  } = useAuthorization(sdk);
+  const { data: auth, loading: authLoading } = useAuthorization(sdk);
   const accesToken = auth?.access_token;
 
   const params = new URLSearchParams();

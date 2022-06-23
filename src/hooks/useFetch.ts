@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import { config } from "process";
 
 interface IData {
   [key: string]: unknown;
@@ -12,9 +13,13 @@ interface IFetch {
   error: AxiosError | null;
 }
 
+interface IUseFetchConfig {
+  immediate: boolean;
+}
+
 const useFetch = (
-  config: Record<string, any>,
-  immediate: boolean = false
+  config: AxiosRequestConfig,
+  { immediate }: IUseFetchConfig = { immediate: false }
 ): IFetch => {
   const [data, setData] = useState<IData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);

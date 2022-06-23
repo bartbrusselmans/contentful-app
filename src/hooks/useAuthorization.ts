@@ -46,7 +46,7 @@ const useAuthorization = (sdk: KnownSDK): IAuthorization => {
     data: body,
   };
 
-  const { data, loading, error } = useFetch(config, true);
+  const { data, loading, error } = useFetch(config, { immediate: true });
 
   return { data: data as IAuthorizationData, loading, error };
 };
