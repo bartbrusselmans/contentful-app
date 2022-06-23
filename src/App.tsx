@@ -1,36 +1,63 @@
-import React, { useMemo } from "react";
-import { locations } from "@contentful/app-sdk";
-import ConfigScreen from "./locations/ConfigScreen";
-import Field from "./locations/Field";
-import EntryEditor from "./locations/EntryEditor";
-import Dialog from "./locations/Dialog";
-import Sidebar from "./locations/Sidebar";
-import Page from "./locations/Page";
-import { useSDK } from "@contentful/react-apps-toolkit";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-const ComponentLocationSettings = {
-  [locations.LOCATION_APP_CONFIG]: ConfigScreen,
-  [locations.LOCATION_ENTRY_FIELD]: Field,
-  [locations.LOCATION_ENTRY_EDITOR]: EntryEditor,
-  [locations.LOCATION_DIALOG]: Dialog,
-  [locations.LOCATION_ENTRY_SIDEBAR]: Sidebar,
-  [locations.LOCATION_PAGE]: Page,
-};
+import { locations } from "@contentful/app-sdk";
+import ConfigScreen from "./components/ConfigScreen";
+import Field from "./components/Field";
+import Dialog from "./components/Dialog";
+import { useSDK } from "@contentful/react-apps-toolkit";
 
 const App = () => {
   const sdk = useSDK();
+  const [selectedItem, setSelectedItem] = useState<Record<string, any> | null>(
+    null
+  );
+
+  const setFieldValue = useCallback((value: Record<string, any> | null) => {
+    setSelectedItem(value);
+  }, []);
+
+  useEffect(() => {
+    // Data gets logged here so state is set
+    console.log(
+      "🚀 ~ file: App.tsx ~ line 28 ~ App ~ selectedItem",
+      selectedItem
+    );
+  }, [selectedItem]);
+
+  useEffect(() => {
+    //  sdk.location.is(locations.LOCATION_ENTRY_FIELD) becomes false when opening the dialog but does not return to true when closing the dialog
+    console.log(
+      "🚀 ~ file: App.tsx ~ line 28 ~ App ~ sdk.location is FIELD",
+      sdk.location.is(locations.LOCATION_ENTRY_FIELD)
+    );
+  }, [sdk]);
 
   const Component = useMemo(() => {
-    for (const [location, component] of Object.entries(
-      ComponentLocationSettings
-    )) {
-      if (sdk.location.is(location)) {
-        return component;
+    const ComponentLocationSettings = [
+      {
+        location: locations.LOCATION_ENTRY_FIELD,
+        component: <Field selectedItem={selectedItem} />,
+      },
+      {
+        location: locations.LOCATION_DIALOG,
+        component: <Dialog setFieldValue={setFieldValue} />,
+      },
+      {
+        location: locations.LOCATION_APP_CONFIG,
+        component: <ConfigScreen />,
+      },
+    ];
+
+    for (const componentLocationSetting of ComponentLocationSettings) {
+      if (sdk.location.is(componentLocationSetting.location)) {
+        return componentLocationSetting.component;
       }
     }
-  }, [sdk.location]);
+    return null;
+  }, [sdk.location, selectedItem, setFieldValue]);
 
-  return Component ? <Component /> : null;
+
+  return Component ? Component : null;
 };
 
 export default App;
